@@ -1,8 +1,4 @@
 import pygame
-import os
-import time
-import random
-import math
 
 from utils import *
 from entities import *
@@ -20,13 +16,17 @@ class Camera:
     def update(self):
         self.offset = pygame.Vector2(-(self.game.screen_width / 2), -(self.game.screen_height / 2))
         followOffset = self.pos - self.game.player.pos
-        self.pos -= followOffset * self.followSpeed * self.game.dt
-        angleOffset = self.angle - self.game.player.angle
-        self.angle -= angleOffset * self.followSpeed * self.game.dt
+        self.pos = self.pos - followOffset * self.followSpeed * self.game.dt
+
+        #angleOffset = self.angle - self.game.player.angle
+        #self.angle -= angleOffset * self.followSpeed * self.game.dt
+        self.angle = self.game.player.angle
 
     def worldToScreen(self, pos):
         """Converts a world-space coordinate vector to screen-space coordinates."""
-        return pos - self.pos - self.offset
+        rel = pos - self.pos          # world -> camera space
+        rel = rel.rotate(-self.angle) # rotate around camera
+        return rel - self.offset      # camera -> screen
 
 # ---------------------------------------------------------------------------------------------------- #
 # Main game object
@@ -129,8 +129,6 @@ class gameState:
         self.level.update()
         self.game.camera.update()
         self.game.player.update()
-        print(self.game.camera.angle)
-        pygame.Surface.blit(pygame.transform.rotate(self.game.screen_surface, self.game.camera.angle), self.game.screen_surface)
 
     def draw(self):
         background(self.game, color('#013501'))

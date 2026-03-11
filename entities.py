@@ -17,7 +17,7 @@ class Entity:
     def draw(self):
         screenPos = self.game.camera.worldToScreen(self.pos)
         if self.texture:
-            image(self.game, self.game.textures[self.texture], screenPos.x, screenPos.y, self.size, self.size, True, self.angle)
+            image(self.game, self.game.textures[self.texture], screenPos.x, screenPos.y, self.size, self.size, True, -self.game.camera.angle)
 
 class Decoration(Entity):
     """Static parts of a level with no collision."""
@@ -28,7 +28,7 @@ class Decoration(Entity):
         screenPos = self.game.camera.worldToScreen(self.pos)
         if self.texture:
             self.size = pygame.Vector2(self.game.textures[self.texture].get_size())
-            image(self.game, self.game.textures[self.texture], screenPos.x, screenPos.y)
+            image(self.game, self.game.textures[self.texture], screenPos.x, screenPos.y, None, None, True, self.game.camera.angle)
 
 class ParallaxEntity(Entity):
     """
@@ -78,9 +78,9 @@ class Player(Entity):
 
         keys = pygame.key.get_pressed()
         if keys[pygame.K_d]:
-            self.angle -= self.turnSpeed * self.game.dt
-        if keys[pygame.K_a]:
             self.angle += self.turnSpeed * self.game.dt
+        if keys[pygame.K_a]:
+            self.angle -= self.turnSpeed * self.game.dt
 
         forward = pygame.Vector2(0, -1).rotate(-self.angle)
         perpendicular = pygame.Vector2(-forward.y, forward.x)
