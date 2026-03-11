@@ -37,9 +37,10 @@ def image(game, image, x, y, w = None, h = None, smooth = True, angle = 0.0):
     image_rect = image.get_rect(center = (x, y))
     game.screen_surface.blit(image, image_rect)
 
-def render(game, worldPos, image):
+def render(game, worldPos, image, angle = 0):
     pos = game.camera.worldToScreen(worldPos)
-    texture = pygame.transform.rotate(game.textures[image], game.camera.angle)
+    texture = pygame.transform.rotate(game.textures[image], game.camera.angle - angle)
+    texture = pygame.transform.scale_by(texture, (game.camera.zoom, game.camera.zoom))
     texture_rect = texture.get_rect(center=(pos.x, pos.y))
     game.screen_surface.blit(texture, texture_rect)
 

@@ -11,6 +11,7 @@ class Camera:
         self.pos = pygame.Vector2(0, 0)
         self.followSpeed = 0.01
         self.angle = game.player.angle
+        self.zoom = 1
         self.update()
     
     def update(self):
@@ -160,14 +161,14 @@ class Level1:
     def __init__(self, game):
         self.game = game
         self.parallaxBackground = ParallaxEntity(self.game, 0, 0, 'space', 0.7)
-        self.floor = Decoration(self.game, 0, 0, 'track1')
+        self.floor = 'track1'
 
     def update(self):
         return
     
     def draw(self):
         self.parallaxBackground.draw()
-        self.floor.draw()
+        render(self.game, pygame.Vector2(0, 0), self.floor)
 
 # ---------------------------------------------------------------------------------------------------- #
 

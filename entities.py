@@ -20,7 +20,7 @@ class Entity:
     #         image(self.game, self.game.textures[self.texture], screenPos.x, screenPos.y, self.size, self.size, True, -self.game.camera.angle)
 
     def draw(self):
-        render(self.game, self.pos, self.texture)
+        render(self.game, self.pos, self.texture, self.angle)
         # pos = self.game.camera.worldToScreen(self.pos)
         # texture = pygame.transform.rotate(self.game.textures[self.texture], self.game.camera.angle - self.angle)
         # texture_rect = texture.get_rect(center=(pos.x, pos.y))
@@ -47,17 +47,12 @@ class ParallaxEntity(Entity):
     def __init__(self, game, x, y, texture: str, parallaxAmt: float):
         super().__init__(game, x, y, texture)
         self.parallaxAmt = parallaxAmt
+        self.size = pygame.Vector2(self.game.textures[self.texture].get_size())
     
     def draw(self):
-        tiles = math.ceil(((self.game.screen_width / self.size) + 1) / 2)
-        offsetX = math.ceil((1 - self.parallaxAmt) * self.game.camera.pos.x / self.size)
-        offsetY = math.ceil((1 - self.parallaxAmt) * self.game.camera.pos.y / self.size)
-        for x in range(-tiles + offsetX, tiles + offsetX):
-            pos = self.game.camera.worldToScreen(self.pos * x)
-            texture = pygame.transform.rotate(self.game.textures[self.texture], self.game.camera.angle)
-            texture_rect = texture.get_rect(center=(pos.x, pos.y))
-            self.game.screen_surface.blit(texture, texture_rect)
-
+        render(self.game, self.pos, self.texture)
+        
+    # Old code, no longer works with new camera mechanics
     # def draw(self):
     #     screenPos = self.game.camera.worldToScreen(self.pos.lerp(self.game.camera.pos, self.parallaxAmt))
     #     if self.texture:
