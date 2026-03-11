@@ -14,20 +14,13 @@ class Camera:
         self.update()
     
     def update(self):
-        self.offset = pygame.Vector2(-(self.game.screen_width / 2), -(self.game.screen_height / 2))
-        followOffset = self.pos - self.game.player.pos
-        self.pos = self.pos - followOffset * self.followSpeed * self.game.dt
-
-        #angleOffset = self.angle - self.game.player.angle
-        #self.angle -= angleOffset * self.followSpeed * self.game.dt
+        self.offset = pygame.Vector2((self.game.screen_width / 2), (self.game.screen_height / 2))
+        self.pos = self.game.player.pos
         self.angle = self.game.player.angle
 
     def worldToScreen(self, pos):
         """Converts a world-space coordinate vector to screen-space coordinates."""
-        rel = pos - self.pos          # world -> camera space
-        rel = rel.rotate(-self.angle) # rotate around camera
-        return rel - self.offset      # camera -> screen
-
+        return pygame.math.Vector2.rotate(pos - self.pos, -self.angle) + self.offset
 # ---------------------------------------------------------------------------------------------------- #
 # Main game object
 

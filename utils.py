@@ -37,6 +37,12 @@ def image(game, image, x, y, w = None, h = None, smooth = True, angle = 0.0):
     image_rect = image.get_rect(center = (x, y))
     game.screen_surface.blit(image, image_rect)
 
+def render(game, worldPos, image):
+    pos = game.camera.worldToScreen(worldPos)
+    texture = pygame.transform.rotate(game.textures[image], game.camera.angle)
+    texture_rect = texture.get_rect(center=(pos.x, pos.y))
+    game.screen_surface.blit(texture, texture_rect)
+
 def loadAssets(game):
     for root, _, files in os.walk('assets'):  
         for filename in files:

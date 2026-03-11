@@ -14,10 +14,17 @@ class Entity:
     def update(self):
         return
     
+    # def draw(self):
+    #     screenPos = self.game.camera.worldToScreen(self.pos)
+    #     if self.texture:
+    #         image(self.game, self.game.textures[self.texture], screenPos.x, screenPos.y, self.size, self.size, True, -self.game.camera.angle)
+
     def draw(self):
-        screenPos = self.game.camera.worldToScreen(self.pos)
-        if self.texture:
-            image(self.game, self.game.textures[self.texture], screenPos.x, screenPos.y, self.size, self.size, True, -self.game.camera.angle)
+        render(self.game, self.pos, self.texture)
+        # pos = self.game.camera.worldToScreen(self.pos)
+        # texture = pygame.transform.rotate(self.game.textures[self.texture], self.game.camera.angle - self.angle)
+        # texture_rect = texture.get_rect(center=(pos.x, pos.y))
+        # self.game.screen_surface.blit(texture, texture_rect)
 
 class Decoration(Entity):
     """Static parts of a level with no collision."""
@@ -25,10 +32,10 @@ class Decoration(Entity):
         super().__init__(game, x, y, texture)
 
     def draw(self):
-        screenPos = self.game.camera.worldToScreen(self.pos)
-        if self.texture:
-            self.size = pygame.Vector2(self.game.textures[self.texture].get_size())
-            image(self.game, self.game.textures[self.texture], screenPos.x, screenPos.y, None, None, True, self.game.camera.angle)
+        pos = self.game.camera.worldToScreen(self.pos)
+        texture = pygame.transform.rotate(self.game.textures[self.texture], self.game.camera.angle)
+        texture_rect = texture.get_rect(center=(pos.x, pos.y))
+        self.game.screen_surface.blit(texture, texture_rect)
 
 class ParallaxEntity(Entity):
     """
@@ -42,21 +49,31 @@ class ParallaxEntity(Entity):
         self.parallaxAmt = parallaxAmt
     
     def draw(self):
-        screenPos = self.game.camera.worldToScreen(self.pos.lerp(self.game.camera.pos, self.parallaxAmt))
-        if self.texture:
-            self.size = pygame.Vector2(self.game.textures[self.texture].get_size())
-        else:
-            return
-        tilesX = math.ceil(((self.game.screen_width / self.size.x) + 1) / 2)
-        offsetX = math.ceil((1 - self.parallaxAmt) * self.game.camera.pos.x / self.size.x)
-        tilesY = math.ceil(((self.game.screen_height / self.size.y) + 1) / 2)
-        offsetY = math.ceil((1 - self.parallaxAmt) * self.game.camera.pos.y / self.size.y)
-        for x in range(-tilesX + offsetX, tilesX + offsetX):
-            for y in range(-tilesY + offsetY, tilesY + offsetY):
-                image(self.game, self.game.textures[self.texture], 
-                      screenPos.x + x * self.size.x,
-                      screenPos.y + y * self.size.y,
-                      self.size.x, self.size.y)
+        tiles = math.ceil(((self.game.screen_width / self.size) + 1) / 2)
+        offsetX = math.ceil((1 - self.parallaxAmt) * self.game.camera.pos.x / self.size)
+        offsetY = math.ceil((1 - self.parallaxAmt) * self.game.camera.pos.y / self.size)
+        for x in range(-tiles + offsetX, tiles + offsetX):
+            pos = self.game.camera.worldToScreen(self.pos * x)
+            texture = pygame.transform.rotate(self.game.textures[self.texture], self.game.camera.angle)
+            texture_rect = texture.get_rect(center=(pos.x, pos.y))
+            self.game.screen_surface.blit(texture, texture_rect)
+
+    # def draw(self):
+    #     screenPos = self.game.camera.worldToScreen(self.pos.lerp(self.game.camera.pos, self.parallaxAmt))
+    #     if self.texture:
+    #         self.size = pygame.Vector2(self.game.textures[self.texture].get_size())
+    #     else:
+    #         return
+    #     tilesX = math.ceil(((self.game.screen_width / self.size.x) + 1) / 2)
+    #     offsetX = math.ceil((1 - self.parallaxAmt) * self.game.camera.pos.x / self.size.x)
+    #     tilesY = math.ceil(((self.game.screen_height / self.size.y) + 1) / 2)
+    #     offsetY = math.ceil((1 - self.parallaxAmt) * self.game.camera.pos.y / self.size.y)
+    #     for x in range(-tilesX + offsetX, tilesX + offsetX):
+    #         for y in range(-tilesY + offsetY, tilesY + offsetY):
+    #             image(self.game, self.game.textures[self.texture], 
+    #                   screenPos.x + x * self.size.x,
+    #                   screenPos.y + y * self.size.y,
+    #                   self.size.x, self.size.y)
 
 class Player(Entity):
     def __init__(self, game, x, y):
@@ -82,7 +99,7 @@ class Player(Entity):
         if keys[pygame.K_a]:
             self.angle -= self.turnSpeed * self.game.dt
 
-        forward = pygame.Vector2(0, -1).rotate(-self.angle)
+        forward = pygame.Vector2(0, -1).rotate(self.angle)
         perpendicular = pygame.Vector2(-forward.y, forward.x)
         frictionMag = self.vel.dot(perpendicular) * self.friction
         frictionVec = -self.friction * perpendicular * frictionMag
